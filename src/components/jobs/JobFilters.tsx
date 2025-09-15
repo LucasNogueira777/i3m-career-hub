@@ -17,9 +17,9 @@ interface JobFiltersProps {
 
 const JobFilters = ({ onFiltersChange }: JobFiltersProps) => {
   const [filters, setFilters] = useState({
-    unidade_obra: "",
-    cidade_uf: "",
-    tipo: "",
+    unidade_obra: "all",
+    cidade_uf: "all",
+    tipo: "all",
     search: ""
   });
 
@@ -31,16 +31,18 @@ const JobFilters = ({ onFiltersChange }: JobFiltersProps) => {
 
   const clearFilters = () => {
     const clearedFilters = {
-      unidade_obra: "",
-      cidade_uf: "",
-      tipo: "",
+      unidade_obra: "all",
+      cidade_uf: "all",
+      tipo: "all",
       search: ""
     };
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== "");
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => 
+    key === "search" ? value !== "" : value !== "all"
+  );
 
   return (
     <Card className="bg-gradient-card shadow-soft border-border">
@@ -93,7 +95,7 @@ const JobFilters = ({ onFiltersChange }: JobFiltersProps) => {
               <SelectValue placeholder="Selecione a unidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as unidades</SelectItem>
+              <SelectItem value="all">Todas as unidades</SelectItem>
               <SelectItem value="Obra Centro SP">Obra Centro SP</SelectItem>
               <SelectItem value="Obra Vila Olímpia">Obra Vila Olímpia</SelectItem>
               <SelectItem value="Sede Corporativa">Sede Corporativa</SelectItem>
@@ -115,7 +117,7 @@ const JobFilters = ({ onFiltersChange }: JobFiltersProps) => {
               <SelectValue placeholder="Selecione a cidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as cidades</SelectItem>
+              <SelectItem value="all">Todas as cidades</SelectItem>
               <SelectItem value="São Paulo/SP">São Paulo/SP</SelectItem>
               <SelectItem value="Rio de Janeiro/RJ">Rio de Janeiro/RJ</SelectItem>
               <SelectItem value="Barueri/SP">Barueri/SP</SelectItem>
@@ -136,7 +138,7 @@ const JobFilters = ({ onFiltersChange }: JobFiltersProps) => {
               <SelectValue placeholder="Selecione o tipo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os tipos</SelectItem>
+              <SelectItem value="all">Todos os tipos</SelectItem>
               <SelectItem value="CLT">CLT</SelectItem>
               <SelectItem value="Terceirizado">Terceirizado</SelectItem>
               <SelectItem value="Estágio">Estágio</SelectItem>

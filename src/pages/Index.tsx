@@ -12,17 +12,17 @@ import { Users, Building2, Trophy, ArrowDown } from "lucide-react";
 
 const Index = () => {
   const [filters, setFilters] = useState({
-    unidade_obra: "",
-    cidade_uf: "",
-    tipo: "",
+    unidade_obra: "all",
+    cidade_uf: "all",
+    tipo: "all",
     search: ""
   });
 
   const filteredJobs = useMemo(() => {
     return mockJobs.filter(job => {
-      const matchesUnidade = !filters.unidade_obra || job.unidade_obra === filters.unidade_obra;
-      const matchesCidade = !filters.cidade_uf || job.cidade_uf === filters.cidade_uf;
-      const matchesTipo = !filters.tipo || job.tipo === filters.tipo;
+      const matchesUnidade = filters.unidade_obra === "all" || job.unidade_obra === filters.unidade_obra;
+      const matchesCidade = filters.cidade_uf === "all" || job.cidade_uf === filters.cidade_uf;
+      const matchesTipo = filters.tipo === "all" || job.tipo === filters.tipo;
       const matchesSearch = !filters.search || 
         job.cargo.toLowerCase().includes(filters.search.toLowerCase()) ||
         job.descricao.toLowerCase().includes(filters.search.toLowerCase());
@@ -148,7 +148,7 @@ const Index = () => {
                   </p>
                   <Button 
                     variant="outline" 
-                    onClick={() => setFilters({ unidade_obra: "", cidade_uf: "", tipo: "", search: "" })}
+                    onClick={() => setFilters({ unidade_obra: "all", cidade_uf: "all", tipo: "all", search: "" })}
                   >
                     Limpar Filtros
                   </Button>
