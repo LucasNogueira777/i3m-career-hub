@@ -14,16 +14,208 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      candidate_history: {
+        Row: {
+          candidate_id: string
+          created_at: string | null
+          fase_anterior: string
+          fase_nova: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string | null
+          fase_anterior: string
+          fase_nova: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string | null
+          fase_anterior?: string
+          fase_nova?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_history_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidates: {
+        Row: {
+          created_at: string | null
+          cv_url: string | null
+          email: string
+          fase: string
+          id: string
+          job_id: string
+          linkedin: string | null
+          nome: string
+          notas: string | null
+          origem: string
+          score: number | null
+          telefone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          cv_url?: string | null
+          email: string
+          fase?: string
+          id?: string
+          job_id: string
+          linkedin?: string | null
+          nome: string
+          notas?: string | null
+          origem: string
+          score?: number | null
+          telefone: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          cv_url?: string | null
+          email?: string
+          fase?: string
+          id?: string
+          job_id?: string
+          linkedin?: string | null
+          nome?: string
+          notas?: string | null
+          origem?: string
+          score?: number | null
+          telefone?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          beneficios: string | null
+          cargo: string
+          cidade_uf: string
+          created_at: string | null
+          descricao: string
+          gestor_email: string | null
+          gestor_nome: string | null
+          id: string
+          requisitos: string
+          salario_faixa: string | null
+          status: string | null
+          tipo: string
+          unidade_obra: string
+          updated_at: string | null
+        }
+        Insert: {
+          beneficios?: string | null
+          cargo: string
+          cidade_uf: string
+          created_at?: string | null
+          descricao: string
+          gestor_email?: string | null
+          gestor_nome?: string | null
+          id?: string
+          requisitos: string
+          salario_faixa?: string | null
+          status?: string | null
+          tipo: string
+          unidade_obra: string
+          updated_at?: string | null
+        }
+        Update: {
+          beneficios?: string | null
+          cargo?: string
+          cidade_uf?: string
+          created_at?: string | null
+          descricao?: string
+          gestor_email?: string | null
+          gestor_nome?: string | null
+          id?: string
+          requisitos?: string
+          salario_faixa?: string | null
+          status?: string | null
+          tipo?: string
+          unidade_obra?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          nome?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +342,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
