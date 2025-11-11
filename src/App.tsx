@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import JobDetail from "./pages/JobDetail";
 import JobApplication from "./pages/JobApplication";
 import Privacy from "./pages/Privacy";
+import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
+import AdminCandidateDetail from "./pages/AdminCandidateDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/vaga/:id" element={<JobDetail />} />
           <Route path="/apply/:jobId" element={<JobApplication />} />
           <Route path="/privacidade" element={<Privacy />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/candidate/:id" element={<AdminCandidateDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

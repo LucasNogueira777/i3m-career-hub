@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,12 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { mockJobs } from "@/data/mockJobs";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Upload, FileText, CheckCircle } from "lucide-react";
 
 const applicationSchema = z.object({
@@ -34,8 +33,8 @@ const JobApplication = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
-  const job = mockJobs.find(j => j.id === jobId);
+  const [job, setJob] = useState<any>(null);
+  const [loadingJob, setLoadingJob] = useState(true);
 
   const form = useForm<ApplicationForm>({
     resolver: zodResolver(applicationSchema),
@@ -48,6 +47,46 @@ const JobApplication = () => {
       lgpd_consent: false,
     },
   });
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (!jobId) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('id', jobId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        setJob(data);
+      } catch (error: any) {
+        console.error('Error fetching job:', error);
+        toast({
+          title: "Erro ao carregar vaga",
+          description: "Não foi possível carregar os detalhes da vaga",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingJob(false);
+      }
+    };
+
+    fetchJob();
+  }, [jobId, toast]);
+
+  if (loadingJob) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-6 py-8">
+          <p className="text-center text-muted-foreground">Carregando vaga...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!job) {
     return <Navigate to="/" replace />;
@@ -82,8 +121,41 @@ const JobApplication = () => {
     setIsSubmitting(true);
     
     try {
-      // Simular envio para o backend
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!uploadedFile) {
+        throw new Error("Arquivo de CV não encontrado");
+      }
+
+      // Upload CV to storage
+      const fileExt = uploadedFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('cvs')
+        .upload(filePath, uploadedFile);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('cvs')
+        .getPublicUrl(filePath);
+
+      // Insert candidate
+      const { error: insertError } = await supabase
+        .from('candidates')
+        .insert({
+          job_id: jobId,
+          nome: data.nome,
+          email: data.email,
+          telefone: data.telefone,
+          origem: data.origem,
+          linkedin: data.linkedin || null,
+          cv_url: publicUrl,
+          fase: 'Triagem'
+        });
+
+      if (insertError) throw insertError;
       
       toast({
         title: "Candidatura enviada com sucesso!",
@@ -94,10 +166,11 @@ const JobApplication = () => {
       form.reset();
       setUploadedFile(null);
       
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error submitting application:', error);
       toast({
         title: "Erro ao enviar candidatura",
-        description: "Tente novamente mais tarde ou entre em contato conosco",
+        description: error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
     } finally {
